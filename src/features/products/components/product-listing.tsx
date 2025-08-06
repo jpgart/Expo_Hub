@@ -1,5 +1,5 @@
 import { Product } from '@/constants/data';
-import { fakeProducts } from '@/constants/mock-api';
+import { supabaseProductsApi } from '@/lib/supabase-api';
 import { searchParamsCache } from '@/lib/searchparams';
 import { ProductTable } from './product-tables';
 import { columns } from './product-tables/columns';
@@ -20,7 +20,7 @@ export default async function ProductListingPage({}: ProductListingPage) {
     ...(categories && { categories: categories })
   };
 
-  const data = await fakeProducts.getProducts(filters);
+  const data = await supabaseProductsApi.getProducts(filters);
   const totalProducts = data.total_products;
   const products: Product[] = data.products;
 

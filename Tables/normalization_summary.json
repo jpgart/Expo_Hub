@@ -1,0 +1,187 @@
+{
+  "normalization_date": "2025-08-13T17:14:38",
+  "source_directory": "/Users/jp/Documents/FullCargo/data/Standardized",
+  "output_directory": "/Users/jp/Documents/FullCargo/data/normalized",
+  "tables_created": 14,
+  "table_details": {
+    "regions": {
+      "records": 6,
+      "columns": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "markets": {
+      "records": 16,
+      "columns": [
+        "id",
+        "name",
+        "region_id",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "countries": {
+      "records": 108,
+      "columns": [
+        "id",
+        "name",
+        "market_id",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "species": {
+      "records": 50,
+      "columns": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "varieties": {
+      "records": 1500,
+      "columns": [
+        "id",
+        "name",
+        "species_id",
+        "variety_name_type",
+        "created_at"
+      ]
+    },
+    "transport_types": {
+      "records": 4,
+      "columns": [
+        "id",
+        "name",
+        "transport_category",
+        "transport_subcategory",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "arrival_ports": {
+      "records": 394,
+      "columns": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "exporters": {
+      "records": 1224,
+      "columns": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "importers": {
+      "records": 4382,
+      "columns": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "seasons": {
+      "records": 4,
+      "columns": [
+        "id",
+        "name",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "shipments_2021_2022": {
+      "records": 129645,
+      "columns": [
+        "id",
+        "season_id",
+        "etd_week",
+        "region_id",
+        "market_id",
+        "country_id",
+        "transport_type_id",
+        "species_id",
+        "variety_id",
+        "importer_id",
+        "exporter_id",
+        "arrival_port_id",
+        "boxes",
+        "kilograms",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "shipments_2022_2023": {
+      "records": 120614,
+      "columns": [
+        "id",
+        "season_id",
+        "etd_week",
+        "region_id",
+        "market_id",
+        "country_id",
+        "transport_type_id",
+        "species_id",
+        "variety_id",
+        "importer_id",
+        "exporter_id",
+        "arrival_port_id",
+        "boxes",
+        "kilograms",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "shipments_2023_2024": {
+      "records": 125477,
+      "columns": [
+        "id",
+        "season_id",
+        "etd_week",
+        "region_id",
+        "market_id",
+        "country_id",
+        "transport_type_id",
+        "species_id",
+        "variety_id",
+        "importer_id",
+        "exporter_id",
+        "arrival_port_id",
+        "boxes",
+        "kilograms",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "shipments_2024_2025": {
+      "records": 71421,
+      "columns": [
+        "id",
+        "season_id",
+        "etd_week",
+        "region_id",
+        "market_id",
+        "country_id",
+        "transport_type_id",
+        "species_id",
+        "variety_id",
+        "importer_id",
+        "exporter_id",
+        "arrival_port_id",
+        "boxes",
+        "kilograms",
+        "created_at",
+        "updated_at"
+      ]
+    }
+  }
+}

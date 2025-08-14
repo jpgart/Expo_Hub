@@ -18,98 +18,442 @@ export const supabaseAdmin = createClient(
   }
 );
 
-// Types for our database tables
+// Types for FullCargo database schema
 export type Database = {
   public: {
     Tables: {
-      products: {
+      regions: {
         Row: {
           id: number;
           name: string;
-          description: string;
-          price: number;
-          photo_url: string;
-          category: string;
           created_at: string;
           updated_at: string;
-          user_id?: string;
         };
         Insert: {
           id?: number;
           name: string;
-          description: string;
-          price: number;
-          photo_url: string;
-          category: string;
           created_at?: string;
           updated_at?: string;
-          user_id?: string;
         };
         Update: {
           id?: number;
           name?: string;
-          description?: string;
-          price?: number;
-          photo_url?: string;
-          category?: string;
           updated_at?: string;
-          user_id?: string;
         };
       };
-      kanban_columns: {
+      markets: {
         Row: {
-          id: string;
-          title: string;
-          position: number;
-          created_at: string;
-          user_id?: string;
-        };
-        Insert: {
-          id?: string;
-          title: string;
-          position: number;
-          created_at?: string;
-          user_id?: string;
-        };
-        Update: {
-          id?: string;
-          title?: string;
-          position?: number;
-          user_id?: string;
-        };
-      };
-      kanban_tasks: {
-        Row: {
-          id: string;
-          title: string;
-          description?: string;
-          status: string;
-          column_id: string;
-          position: number;
+          id: number;
+          name: string;
+          region_id: number;
           created_at: string;
           updated_at: string;
-          user_id?: string;
         };
         Insert: {
-          id?: string;
-          title: string;
-          description?: string;
-          status: string;
-          column_id: string;
-          position: number;
+          id?: number;
+          name: string;
+          region_id: number;
           created_at?: string;
           updated_at?: string;
-          user_id?: string;
         };
         Update: {
-          id?: string;
-          title?: string;
-          description?: string;
-          status?: string;
-          column_id?: string;
-          position?: number;
+          id?: number;
+          name?: string;
+          region_id?: number;
           updated_at?: string;
-          user_id?: string;
+        };
+      };
+      countries: {
+        Row: {
+          id: number;
+          name: string;
+          market_id: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          market_id: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          market_id?: number;
+          updated_at?: string;
+        };
+      };
+      species: {
+        Row: {
+          id: number;
+          name: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          updated_at?: string;
+        };
+      };
+      varieties: {
+        Row: {
+          id: number;
+          name: string;
+          species_id: number;
+          variety_name_type: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          species_id: number;
+          variety_name_type?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          species_id?: number;
+          variety_name_type?: string;
+          updated_at?: string;
+        };
+      };
+      transport_types: {
+        Row: {
+          id: number;
+          name: string;
+          transport_category: string;
+          transport_subcategory?: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          transport_category: string;
+          transport_subcategory?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          transport_category?: string;
+          transport_subcategory?: string;
+          updated_at?: string;
+        };
+      };
+      arrival_ports: {
+        Row: {
+          id: number;
+          name: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          updated_at?: string;
+        };
+      };
+      exporters: {
+        Row: {
+          id: number;
+          name: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          updated_at?: string;
+        };
+      };
+      importers: {
+        Row: {
+          id: number;
+          name: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          updated_at?: string;
+        };
+      };
+      seasons: {
+        Row: {
+          id: number;
+          name: string;
+          start_year?: number;
+          end_year?: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          name: string;
+          start_year?: number;
+          end_year?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          name?: string;
+          start_year?: number;
+          end_year?: number;
+          updated_at?: string;
+        };
+      };
+      shipments_2021_2022: {
+        Row: {
+          id: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          season_id?: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          updated_at?: string;
+        };
+      };
+      shipments_2022_2023: {
+        Row: {
+          id: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          season_id?: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          updated_at?: string;
+        };
+      };
+      shipments_2023_2024: {
+        Row: {
+          id: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          season_id?: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          updated_at?: string;
+        };
+      };
+      shipments_2024_2025: {
+        Row: {
+          id: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          season_id: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          season_id?: number;
+          etd_week?: string;
+          region_id?: number;
+          market_id?: number;
+          country_id?: number;
+          transport_type_id?: number;
+          species_id?: number;
+          variety_id?: number;
+          importer_id?: number;
+          exporter_id?: number;
+          arrival_port_id?: number;
+          boxes?: number;
+          kilograms?: number;
+          updated_at?: string;
         };
       };
     };

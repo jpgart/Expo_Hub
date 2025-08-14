@@ -1,12 +1,26 @@
 import { supabase } from '@/lib/supabase';
 import type { Database } from '@/lib/supabase';
 
-type Product = Database['public']['Tables']['products']['Row'];
-type ProductInsert = Database['public']['Tables']['products']['Insert'];
-type ProductUpdate = Database['public']['Tables']['products']['Update'];
+// FullCargo Types
+type Region = Database['public']['Tables']['regions']['Row'];
+type Market = Database['public']['Tables']['markets']['Row'];
+type Country = Database['public']['Tables']['countries']['Row'];
+type Species = Database['public']['Tables']['species']['Row'];
+type Variety = Database['public']['Tables']['varieties']['Row'];
+type TransportType = Database['public']['Tables']['transport_types']['Row'];
+type ArrivalPort = Database['public']['Tables']['arrival_ports']['Row'];
+type Exporter = Database['public']['Tables']['exporters']['Row'];
+type Importer = Database['public']['Tables']['importers']['Row'];
+type Season = Database['public']['Tables']['seasons']['Row'];
 
-// Products API using Supabase
-export const supabaseProductsApi = {
+// Shipment types for different seasons
+type Shipment2021 = Database['public']['Tables']['shipments_2021_2022']['Row'];
+type Shipment2022 = Database['public']['Tables']['shipments_2022_2023']['Row'];
+type Shipment2023 = Database['public']['Tables']['shipments_2023_2024']['Row'];
+type Shipment2024 = Database['public']['Tables']['shipments_2024_2025']['Row'];
+
+// FullCargo API using Supabase
+export const fullCargoApi = {
   // Get all products with filtering and search
   async getProducts({
     page = 1,

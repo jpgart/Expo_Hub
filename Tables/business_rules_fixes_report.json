@@ -1,0 +1,12 @@
+{
+  "countries": {
+    "countries_consolidated": 0,
+    "details": []
+  },
+  "varieties": {
+    "total_species": 50,
+    "species_with_unspecified": 43,
+    "missing_unspecified": 7,
+    "note": "SIN ESPECIFICAR por especie es correcto según reglas de negocio"
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "load_date": "2025-08-13T20:00:43.510585",
+  "csv_directory": "/Users/jp/Documents/FullCargo/data/normalized",
+  "batch_size": 100,
+  "tables_loaded": [
+    "regions",
+    "markets",
+    "countries",
+    "species",
+    "varieties",
+    "transport_types",
+    "arrival_ports",
+    "exporters",
+    "importers",
+    "seasons",
+    "shipments_2022_2023",
+    "shipments_2023_2024",
+    "shipments_2024_2025",
+    "shipments_2021_2022"
+  ],
+  "load_statistics": {
+    "regions": {
+      "total_records": 6,
+      "records_to_insert": 6,
+      "successful_records": 6,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "markets": {
+      "total_records": 16,
+      "records_to_insert": 16,
+      "successful_records": 16,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "countries": {
+      "total_records": 108,
+      "records_to_insert": 108,
+      "successful_records": 108,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "species": {
+      "total_records": 50,
+      "records_to_insert": 50,
+      "successful_records": 50,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "varieties": {
+      "total_records": 1500,
+      "records_to_insert": 1500,
+      "successful_records": 1500,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "transport_types": {
+      "total_records": 4,
+      "records_to_insert": 4,
+      "successful_records": 4,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "arrival_ports": {
+      "total_records": 394,
+      "records_to_insert": 394,
+      "successful_records": 394,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "exporters": {
+      "total_records": 1224,
+      "records_to_insert": 1224,
+      "successful_records": 1224,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "importers": {
+      "total_records": 4382,
+      "records_to_insert": 4382,
+      "successful_records": 4382,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "seasons": {
+      "total_records": 4,
+      "records_to_insert": 4,
+      "successful_records": 4,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "shipments_2022_2023": {
+      "total_records": 120614,
+      "records_to_insert": 120614,
+      "successful_records": 120614,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "shipments_2023_2024": {
+      "total_records": 125477,
+      "records_to_insert": 125477,
+      "successful_records": 125477,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "shipments_2024_2025": {
+      "total_records": 71421,
+      "records_to_insert": 71421,
+      "successful_records": 71421,
+      "failed_records": 0,
+      "success_rate": 100.0
+    },
+    "shipments_2021_2022": {
+      "total_records": 129645,
+      "records_to_insert": 129645,
+      "successful_records": 129645,
+      "failed_records": 0,
+      "success_rate": 100.0
+    }
+  },
+  "validation_results": {
+    "regions": 6,
+    "markets": 16,
+    "countries": 108,
+    "species": 50,
+    "varieties": 1000,
+    "transport_types": 4,
+    "arrival_ports": 394,
+    "exporters": 1000,
+    "importers": 1000,
+    "seasons": 4,
+    "shipments_2022_2023": 1000,
+    "shipments_2023_2024": 1000,
+    "shipments_2024_2025": 1000,
+    "shipments_2021_2022": 1000
+  },
+  "summary": {
+    "total_tables_loaded": 14,
+    "total_records_loaded": 454845,
+    "overall_success_rate": 100.0
+  }
+}

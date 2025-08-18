@@ -1,8 +1,7 @@
-import { delay } from '@/constants/mock-api';
-import { BarGraph } from '@/features/overview/components/bar-graph';
-
-export default async function BarStats() {
-  await await delay(1000);
-
-  return <BarGraph />;
+export default function BarStats() {
+  return (
+    <div className='text-muted-foreground flex h-32 items-center justify-center'>
+      <p>Bar statistics coming soon...</p>
+    </div>
+  );
 }

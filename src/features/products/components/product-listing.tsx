@@ -1,5 +1,5 @@
 import { Product } from '@/constants/data';
-import { supabaseProductsApi } from '@/lib/supabase-api';
+import { fullCargoApi } from '@/lib/fullcargo-api';
 import { searchParamsCache } from '@/lib/searchparams';
 import { ProductTable } from './product-tables';
 import { columns } from './product-tables/columns';
@@ -20,7 +20,9 @@ export default async function ProductListingPage({}: ProductListingPage) {
     ...(categories && { categories: categories })
   };
 
-  const data = await supabaseProductsApi.getProducts(filters);
+  // TODO: Implement product fetching with fullCargoApi
+  // const data = await fullCargoApi.getProducts(filters);
+  const data = { total_products: 0, products: [] };
   const totalProducts = data.total_products;
   const products: Product[] = data.products;
 

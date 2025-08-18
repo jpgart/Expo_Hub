@@ -1,0 +1,65 @@
+npm warn Unknown project config "shamefully-hoist". This will stop working in the next major version of npm.
+
+> next-shadcn-dashboard-starter@1.0.0 dev
+> next dev --turbopack
+
+   ▲ Next.js 15.3.2 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.6.37:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     · clientTraceMetadata
+
+ ✓ Starting...
+ ○ Compiling instrumentation Node.js ...
+ ✓ Compiled instrumentation Node.js in 696ms
+ ✓ Compiled instrumentation Edge in 259ms
+ ✓ Compiled middleware in 217ms
+ ✓ Ready in 2.7s
+ ○ Compiling /dashboard/overview ...
+ ✓ Compiled /dashboard/overview in 5.7s
+ GET /dashboard/overview 200 in 6476ms
+ GET /dashboard/overview 200 in 857ms
+ GET /dashboard/overview 200 in 302ms
+
+[35m
+[Clerk]:[0m You are running in keyless mode.
+You can [35mclaim your keys[0m by visiting https://dashboard.clerk.com/apps/claim?token=3k2wzd2dd2iyexedntie0hlhu6zy5zqhaoaovat4
+
+ POST /dashboard/overview 200 in 313ms
+ ✓ Compiled in 203ms
+ ✓ Compiled in 206ms
+ ✓ Compiled in 142ms
+ ⚠ Fast Refresh had to perform a full reload when ./src/contexts/dashboard-filters-context.tsx changed. Read more: https://nextjs.org/docs/messages/fast-refresh-reload
+ GET /dashboard/overview 200 in 630ms
+ POST /dashboard/overview 200 in 193ms
+ ✓ Compiled in 235ms
+ ✓ Compiled in 475ms
+ ✓ Compiled in 170ms
+ ✓ Compiled in 197ms
+ ✓ Compiled in 211ms
+ ✓ Compiled in 349ms
+ ✓ Compiled in 412ms
+ ✓ Compiled in 193ms
+ ✓ Compiled in 301ms
+ ✓ Compiled in 290ms
+ ✓ Compiled in 310ms
+ ✓ Compiled in 196ms
+ ✓ Compiled in 196ms
+ ⨯ ./src/lib/fullcargo-api.ts:515:4
+Parsing ecmascript source code failed
+[0m [90m 513 |[39m       }[33m;[39m[0m
+[0m [90m 514 |[39m     }[0m
+[0m[31m[1m>[22m[39m[90m 515 |[39m   }[33m,[39m[0m
+[0m [90m     |[39m    [31m[1m^[22m[39m[0m
+[0m [90m 516 |[39m[0m
+[0m [90m 517 |[39m   [90m// Get shipment by ID (from any season table)[39m[0m
+[0m [90m 518 |[39m   [36masync[39m getShipmentById(id[33m:[39m number[33m,[39m season [33m=[39m [32m'2024_2025'[39m) {[0m
+
+Expression expected
+
+
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1291ms
+ GET /dashboard/overview 500 in 1599ms
+[?25h

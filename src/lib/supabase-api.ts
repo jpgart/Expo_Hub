@@ -148,7 +148,7 @@ export const fullCargoApi = {
   },
 
   // Create new product
-  async createProduct(productData: ProductInsert) {
+  async createProduct(productData: any) {
     try {
       const { data: product, error } = await supabase
         .from('products')
@@ -175,7 +175,7 @@ export const fullCargoApi = {
   },
 
   // Update product
-  async updateProduct(id: number, productData: ProductUpdate) {
+  async updateProduct(id: number, productData: any) {
     try {
       const { data: product, error } = await supabase
         .from('products')
@@ -237,7 +237,9 @@ export const fullCargoApi = {
       }
 
       // Extract unique categories
-      const categories = [...new Set(data?.map((item) => item.category) || [])];
+      const categories = Array.from(
+        new Set(data?.map((item) => item.category) || [])
+      );
       return categories.sort();
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -252,7 +254,7 @@ export const supabaseKanbanApi = {
   async getColumns() {
     try {
       const { data: columns, error } = await supabase
-        .from('kanban_columns')
+        .from('columns')
         .select('*')
         .order('position', { ascending: true });
 
@@ -287,12 +289,10 @@ export const supabaseKanbanApi = {
   },
 
   // Create new task
-  async createTask(
-    taskData: Database['public']['Tables']['kanban_tasks']['Insert']
-  ) {
+  async createTask(taskData: any) {
     try {
       const { data: task, error } = await supabase
-        .from('kanban_tasks')
+        .from('tasks')
         .insert([taskData])
         .select()
         .single();
@@ -309,13 +309,10 @@ export const supabaseKanbanApi = {
   },
 
   // Update task
-  async updateTask(
-    id: string,
-    taskData: Database['public']['Tables']['kanban_tasks']['Update']
-  ) {
+  async updateTask(id: string, taskData: any) {
     try {
       const { data: task, error } = await supabase
-        .from('kanban_tasks')
+        .from('tasks')
         .update({ ...taskData, updated_at: new Date().toISOString() })
         .eq('id', id)
         .select()
@@ -335,10 +332,7 @@ export const supabaseKanbanApi = {
   // Delete task
   async deleteTask(id: string) {
     try {
-      const { error } = await supabase
-        .from('kanban_tasks')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('tasks').delete().eq('id', id);
 
       if (error) {
         throw error;
@@ -352,12 +346,10 @@ export const supabaseKanbanApi = {
   },
 
   // Create new column
-  async createColumn(
-    columnData: Database['public']['Tables']['kanban_columns']['Insert']
-  ) {
+  async createColumn(columnData: any) {
     try {
       const { data: column, error } = await supabase
-        .from('kanban_columns')
+        .from('columns')
         .insert([columnData])
         .select()
         .single();
@@ -374,13 +366,10 @@ export const supabaseKanbanApi = {
   },
 
   // Update column
-  async updateColumn(
-    id: string,
-    columnData: Database['public']['Tables']['kanban_columns']['Update']
-  ) {
+  async updateColumn(id: string, columnData: any) {
     try {
       const { data: column, error } = await supabase
-        .from('kanban_columns')
+        .from('columns')
         .update(columnData)
         .eq('id', id)
         .select()
@@ -401,13 +390,10 @@ export const supabaseKanbanApi = {
   async deleteColumn(id: string) {
     try {
       // First delete all tasks in this column
-      await supabase.from('kanban_tasks').delete().eq('column_id', id);
+      await supabase.from('tasks').delete().eq('column_id', id);
 
       // Then delete the column
-      const { error } = await supabase
-        .from('kanban_columns')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from('columns').delete().eq('id', id);
 
       if (error) {
         throw error;

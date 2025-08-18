@@ -12,7 +12,16 @@ const baseConfig: NextConfig = {
       }
     ]
   },
-  transpilePackages: ['geist']
+  transpilePackages: ['geist'],
+  async redirects() {
+    return [
+      {
+        source: '/exporters',
+        destination: '/dashboard/exporters',
+        permanent: true
+      }
+    ];
+  }
 };
 
 let configWithPlugins = baseConfig;

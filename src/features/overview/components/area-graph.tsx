@@ -2,6 +2,7 @@
 
 import { IconTrendingUp } from '@tabler/icons-react';
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+import * as React from 'react';
 
 import {
   Card,
@@ -18,36 +19,71 @@ import {
   ChartTooltipContent
 } from '@/components/ui/chart';
 
-const chartData = [
-  { month: 'January', desktop: 186, mobile: 80 },
-  { month: 'February', desktop: 305, mobile: 200 },
-  { month: 'March', desktop: 237, mobile: 120 },
-  { month: 'April', desktop: 73, mobile: 190 },
-  { month: 'May', desktop: 209, mobile: 130 },
-  { month: 'June', desktop: 214, mobile: 140 }
-];
+interface DashboardData {
+  trends: Array<{
+    period: string;
+    kilograms: number;
+    boxes: number;
+  }>;
+  topExporters: Array<{
+    name: string;
+    kilograms: number;
+    boxes: number;
+  }>;
+}
 
 const chartConfig = {
-  visitors: {
-    label: 'Visitors'
+  kilograms: {
+    label: 'Kilograms',
+    color: 'hsl(var(--chart-1))'
   },
-  desktop: {
-    label: 'Desktop',
-    color: 'var(--primary)'
-  },
-  mobile: {
-    label: 'Mobile',
-    color: 'var(--primary)'
+  boxes: {
+    label: 'Boxes',
+    color: 'hsl(var(--chart-2))'
   }
 } satisfies ChartConfig;
 
-export function AreaGraph() {
+interface AreaGraphProps {
+  data?: DashboardData;
+}
+
+export function AreaGraph({ data }: AreaGraphProps) {
+  const chartData = React.useMemo(() => {
+    if (!data?.trends) return [];
+    return data.trends.slice(-6).map((trend) => ({
+      period: trend.period.split(' ')[0], // Just the month
+      kilograms: Math.round(trend.kilograms / 1000), // Convert to thousands
+      boxes: Math.round(trend.boxes / 1000) // Convert to thousands
+    }));
+  }, [data]);
+
+  const totalKg = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.kilograms, 0);
+  }, [chartData]);
+
+  const totalBoxes = React.useMemo(() => {
+    return chartData.reduce((acc, curr) => acc + curr.boxes, 0);
+  }, [chartData]);
+
+  if (!data?.trends?.length) {
+    return (
+      <Card className='@container/card'>
+        <CardHeader>
+          <CardTitle>Export Volumes</CardTitle>
+          <CardDescription>Loading volume data...</CardDescription>
+        </CardHeader>
+        <CardContent className='flex h-[250px] items-center justify-center'>
+          <div className='bg-muted h-full w-full animate-pulse rounded'></div>
+        </CardContent>
+      </Card>
+    );
+  }
   return (
     <Card className='@container/card'>
       <CardHeader>
-        <CardTitle>Area Chart - Stacked</CardTitle>
+        <CardTitle>Export Volumes - Stacked</CardTitle>
         <CardDescription>
-          Showing total visitors for the last 6 months
+          Showing kilograms and boxes for the last 6 months (in thousands)
         </CardDescription>
       </CardHeader>
       <CardContent className='px-2 pt-4 sm:px-6 sm:pt-6'>
@@ -63,34 +99,34 @@ export function AreaGraph() {
             }}
           >
             <defs>
-              <linearGradient id='fillDesktop' x1='0' y1='0' x2='0' y2='1'>
+              <linearGradient id='fillKilograms' x1='0' y1='0' x2='0' y2='1'>
                 <stop
                   offset='5%'
-                  stopColor='var(--color-desktop)'
-                  stopOpacity={1.0}
-                />
-                <stop
-                  offset='95%'
-                  stopColor='var(--color-desktop)'
-                  stopOpacity={0.1}
-                />
-              </linearGradient>
-              <linearGradient id='fillMobile' x1='0' y1='0' x2='0' y2='1'>
-                <stop
-                  offset='5%'
-                  stopColor='var(--color-mobile)'
+                  stopColor='var(--color-kilograms)'
                   stopOpacity={0.8}
                 />
                 <stop
                   offset='95%'
-                  stopColor='var(--color-mobile)'
+                  stopColor='var(--color-kilograms)'
+                  stopOpacity={0.1}
+                />
+              </linearGradient>
+              <linearGradient id='fillBoxes' x1='0' y1='0' x2='0' y2='1'>
+                <stop
+                  offset='5%'
+                  stopColor='var(--color-boxes)'
+                  stopOpacity={0.8}
+                />
+                <stop
+                  offset='95%'
+                  stopColor='var(--color-boxes)'
                   stopOpacity={0.1}
                 />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
             <XAxis
-              dataKey='month'
+              dataKey='period'
               tickLine={false}
               axisLine={false}
               tickMargin={8}
@@ -102,17 +138,17 @@ export function AreaGraph() {
               content={<ChartTooltipContent indicator='dot' />}
             />
             <Area
-              dataKey='mobile'
+              dataKey='boxes'
               type='natural'
-              fill='url(#fillMobile)'
-              stroke='var(--color-mobile)'
+              fill='url(#fillBoxes)'
+              stroke='var(--color-boxes)'
               stackId='a'
             />
             <Area
-              dataKey='desktop'
+              dataKey='kilograms'
               type='natural'
-              fill='url(#fillDesktop)'
-              stroke='var(--color-desktop)'
+              fill='url(#fillKilograms)'
+              stroke='var(--color-kilograms)'
               stackId='a'
             />
           </AreaChart>
@@ -122,11 +158,11 @@ export function AreaGraph() {
         <div className='flex w-full items-start gap-2 text-sm'>
           <div className='grid gap-2'>
             <div className='flex items-center gap-2 leading-none font-medium'>
-              Trending up by 5.2% this month{' '}
+              Total: {totalKg}K kg, {totalBoxes}K boxes{' '}
               <IconTrendingUp className='h-4 w-4' />
             </div>
             <div className='text-muted-foreground flex items-center gap-2 leading-none'>
-              January - June 2024
+              Last 6 months of export data
             </div>
           </div>
         </div>

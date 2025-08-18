@@ -22,19 +22,78 @@ export const navItems: NavItem[] = [
     items: [] // Empty array as there are no child items for Dashboard
   },
   {
-    title: 'Product',
-    url: '/dashboard/product',
-    icon: 'product',
-    shortcut: ['p', 'p'],
+    title: 'AI',
+    url: '/dashboard/ai',
+    icon: 'brain',
+    isActive: false,
+    shortcut: ['i', 'a'],
+    items: [] // No child items - AI features
+  },
+  {
+    title: 'Exporters',
+    url: '/dashboard/exporters',
+    icon: 'chartBar',
+    isActive: false,
+    shortcut: ['e', 'x'],
+    items: [] // No child items
+  },
+  {
+    title: 'Importers',
+    url: '/dashboard/importers',
+    icon: 'chartLine',
+    isActive: false,
+    shortcut: ['i', 'm'],
+    items: [] // No child items - Importers module
+  },
+  {
+    title: 'Analytics',
+    url: '/dashboard/analytics',
+    icon: 'chartPie',
+    isActive: false,
+    shortcut: ['a', 'n'],
+    items: [] // No child items - Advanced analytics
+  }
+  // Temporarily disabled sections - keep for future activation
+  /*
+  {
+    title: 'Shipments',
+    url: '/dashboard/shipments',
+    icon: 'truck',
+    shortcut: ['s', 's'],
     isActive: false,
     items: [] // No child items
+  },
+  {
+    title: 'Master Data',
+    url: '#',
+    icon: 'database',
+    isActive: false,
+    items: [
+      {
+        title: 'Species & Varieties',
+        url: '/dashboard/master/species',
+        icon: 'leaf',
+        shortcut: ['m', 's']
+      },
+      {
+        title: 'Importers & Exporters',
+        url: '/dashboard/master/companies',
+        icon: 'building',
+        shortcut: ['m', 'c']
+      },
+      {
+        title: 'Ports & Transport',
+        url: '/dashboard/master/logistics',
+        icon: 'truck',
+        shortcut: ['m', 'l']
+      }
+    ]
   },
   {
     title: 'Account',
     url: '#', // Placeholder as there is no direct link for the parent
     icon: 'billing',
     isActive: true,
-
     items: [
       {
         title: 'Profile',
@@ -58,6 +117,7 @@ export const navItems: NavItem[] = [
     isActive: false,
     items: [] // No child items
   }
+  */
 ];
 
 export interface SaleUser {

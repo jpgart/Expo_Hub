@@ -1,7 +1,7 @@
-import { delay } from '@/constants/mock-api';
-import { RecentSales } from '@/features/overview/components/recent-sales';
-
-export default async function Sales() {
-  await delay(3000);
-  return <RecentSales />;
+export default function Sales() {
+  return (
+    <div className='text-muted-foreground flex h-32 items-center justify-center'>
+      <p>Recent sales coming soon...</p>
+    </div>
+  );
 }

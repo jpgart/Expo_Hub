@@ -1,7 +1,7 @@
-import { delay } from '@/constants/mock-api';
-import { PieGraph } from '@/features/overview/components/pie-graph';
-
-export default async function Stats() {
-  await delay(1000);
-  return <PieGraph />;
+export default function Stats() {
+  return (
+    <div className='text-muted-foreground flex h-32 items-center justify-center'>
+      <p>Pie statistics coming soon...</p>
+    </div>
+  );
 }

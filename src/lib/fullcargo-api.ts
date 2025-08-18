@@ -329,99 +329,189 @@ export const fullCargoApi = {
     }
   },
 
-  // Get shipment analytics by season
-  async getShipmentAnalytics(season = '2024_2025') {
+  // Get shipment analytics by season or all seasons
+  async getShipmentAnalytics(season = 'all') {
     try {
-      const tableName = `shipments_${season}`;
+      let analytics;
 
-      // Total shipments and volume
-      const { data: totals, error: totalsError } = await supabase
-        .from(tableName)
-        .select('boxes, kilograms')
-        .not('boxes', 'is', null)
-        .not('kilograms', 'is', null);
+      if (season === 'all') {
+        // For all seasons, aggregate data across all season tables
+        const allSeasons = ['2024_2025', '2023_2024', '2022_2023', '2021_2022'];
+        const seasonData = await Promise.all(
+          allSeasons.map((seasonName) => {
+            const tableName = `shipments_${seasonName}`;
+            return supabase.from(tableName).select(
+              `
+              *,
+              regions!region_id(name),
+              markets!market_id(name),
+              countries!country_id(name),
+              species!species_id(name),
+              varieties!variety_id(name),
+              transport_types!transport_type_id(name, transport_category),
+              arrival_ports!arrival_port_id(name),
+              exporters!exporter_id(name),
+              importers!importer_id(name),
+              seasons!season_id(name)
+            `
+            );
+          })
+        );
 
-      if (totalsError) throw totalsError;
+        // Aggregate data across all seasons
+        const aggregatedData: any[] = [];
+        seasonData.forEach(({ data: seasonShipments }) => {
+          if (seasonShipments) {
+            aggregatedData.push(...seasonShipments);
+          }
+        });
 
-      // Top species by volume
-      const { data: speciesStats, error: speciesError } = await supabase
-        .from(tableName)
-        .select(
+        // Calculate totals
+        const totalBoxes = aggregatedData.reduce(
+          (sum, item) => sum + (item.boxes || 0),
+          0
+        );
+        const totalKilograms = aggregatedData.reduce(
+          (sum, item) => sum + (item.kilograms || 0),
+          0
+        );
+        const totalShipments = aggregatedData.length;
+
+        // Group species stats
+        const speciesGrouped = aggregatedData.reduce((acc: any, item: any) => {
+          const speciesName = item.species?.name || 'Unknown';
+          if (!acc[speciesName]) {
+            acc[speciesName] = { boxes: 0, kilograms: 0, shipments: 0 };
+          }
+          acc[speciesName].boxes += item.boxes || 0;
+          acc[speciesName].kilograms += item.kilograms || 0;
+          acc[speciesName].shipments += 1;
+          return acc;
+        }, {});
+
+        // Group country stats
+        const countryGrouped = aggregatedData.reduce((acc: any, item: any) => {
+          const countryName = item.countries?.name || 'Unknown';
+          if (!acc[countryName]) {
+            acc[countryName] = { boxes: 0, kilograms: 0, shipments: 0 };
+          }
+          acc[countryName].boxes += item.boxes || 0;
+          acc[countryName].kilograms += item.kilograms || 0;
+          acc[countryName].shipments += 1;
+          return acc;
+        }, {});
+
+        analytics = {
+          season: 'all',
+          totals: {
+            shipments: totalShipments,
+            boxes: totalBoxes,
+            kilograms: totalKilograms
+          },
+          topSpecies: Object.entries(speciesGrouped || {})
+            .map(([name, stats]: [string, any]) => ({ name, ...stats }))
+            .sort((a, b) => b.kilograms - a.kilograms)
+            .slice(0, 10),
+          topCountries: Object.entries(countryGrouped || {})
+            .map(([name, stats]: [string, any]) => ({ name, ...stats }))
+            .sort((a, b) => b.kilograms - a.kilograms)
+            .slice(0, 10)
+        };
+      } else {
+        // For specific season, use existing logic
+        const tableName = `shipments_${season}`;
+
+        // Total shipments and volume
+        const { data: totals, error: totalsError } = await supabase
+          .from(tableName)
+          .select('boxes, kilograms')
+          .not('boxes', 'is', null)
+          .not('kilograms', 'is', null);
+
+        if (totalsError) throw totalsError;
+
+        // Top species by volume
+        const { data: speciesStats, error: speciesError } = await supabase
+          .from(tableName)
+          .select(
+            `
+            species_id,
+            species!species_id(name),
+            boxes,
+            kilograms
           `
-					species_id,
-					species!species_id(name),
-					boxes,
-					kilograms
-				`
-        )
-        .not('species_id', 'is', null)
-        .not('boxes', 'is', null);
+          )
+          .not('species_id', 'is', null)
+          .not('boxes', 'is', null);
 
-      if (speciesError) throw speciesError;
+        if (speciesError) throw speciesError;
 
-      // Top countries by volume
-      const { data: countryStats, error: countryError } = await supabase
-        .from(tableName)
-        .select(
+        // Top countries by volume
+        const { data: countryStats, error: countryError } = await supabase
+          .from(tableName)
+          .select(
+            `
+            country_id,
+            countries!country_id(name),
+            boxes,
+            kilograms
           `
-					country_id,
-					countries!country_id(name),
-					boxes,
-					kilograms
-				`
-        )
-        .not('country_id', 'is', null)
-        .not('boxes', 'is', null);
+          )
+          .not('country_id', 'is', null)
+          .not('boxes', 'is', null);
 
-      if (countryError) throw countryError;
+        if (countryError) throw countryError;
 
-      // Calculate totals
-      const totalBoxes =
-        totals?.reduce((sum, item) => sum + (item.boxes || 0), 0) || 0;
-      const totalKilograms =
-        totals?.reduce((sum, item) => sum + (item.kilograms || 0), 0) || 0;
-      const totalShipments = totals?.length || 0;
+        // Calculate totals
+        const totalBoxes =
+          totals?.reduce((sum, item) => sum + (item.boxes || 0), 0) || 0;
+        const totalKilograms =
+          totals?.reduce((sum, item) => sum + (item.kilograms || 0), 0) || 0;
+        const totalShipments = totals?.length || 0;
 
-      // Group species stats
-      const speciesGrouped = speciesStats?.reduce((acc: any, item: any) => {
-        const speciesName = item.species?.name || 'Unknown';
-        if (!acc[speciesName]) {
-          acc[speciesName] = { boxes: 0, kilograms: 0, shipments: 0 };
-        }
-        acc[speciesName].boxes += item.boxes || 0;
-        acc[speciesName].kilograms += item.kilograms || 0;
-        acc[speciesName].shipments += 1;
-        return acc;
-      }, {});
+        // Group species stats
+        const speciesGrouped = speciesStats?.reduce((acc: any, item: any) => {
+          const speciesName = item.species?.name || 'Unknown';
+          if (!acc[speciesName]) {
+            acc[speciesName] = { boxes: 0, kilograms: 0, shipments: 0 };
+          }
+          acc[speciesName].boxes += item.boxes || 0;
+          acc[speciesName].kilograms += item.kilograms || 0;
+          acc[speciesName].shipments += 1;
+          return acc;
+        }, {});
 
-      // Group country stats
-      const countryGrouped = countryStats?.reduce((acc: any, item: any) => {
-        const countryName = item.countries?.name || 'Unknown';
-        if (!acc[countryName]) {
-          acc[countryName] = { boxes: 0, kilograms: 0, shipments: 0 };
-        }
-        acc[countryName].boxes += item.boxes || 0;
-        acc[countryName].kilograms += item.kilograms || 0;
-        acc[countryName].shipments += 1;
-        return acc;
-      }, {});
+        // Group country stats
+        const countryGrouped = countryStats?.reduce((acc: any, item: any) => {
+          const countryName = item.countries?.name || 'Unknown';
+          if (!acc[countryName]) {
+            acc[countryName] = { boxes: 0, kilograms: 0, shipments: 0 };
+          }
+          acc[countryName].boxes += item.boxes || 0;
+          acc[countryName].kilograms += item.kilograms || 0;
+          acc[countryName].shipments += 1;
+          return acc;
+        }, {});
 
-      return {
-        season,
-        totals: {
-          shipments: totalShipments,
-          boxes: totalBoxes,
-          kilograms: totalKilograms
-        },
-        topSpecies: Object.entries(speciesGrouped || {})
-          .map(([name, stats]: [string, any]) => ({ name, ...stats }))
-          .sort((a, b) => b.kilograms - a.kilograms)
-          .slice(0, 10),
-        topCountries: Object.entries(countryGrouped || {})
-          .map(([name, stats]: [string, any]) => ({ name, ...stats }))
-          .sort((a, b) => b.kilograms - a.kilograms)
-          .slice(0, 10)
-      };
+        analytics = {
+          season,
+          totals: {
+            shipments: totalShipments,
+            boxes: totalBoxes,
+            kilograms: totalKilograms
+          },
+          topSpecies: Object.entries(speciesGrouped || {})
+            .map(([name, stats]: [string, any]) => ({ name, ...stats }))
+            .sort((a, b) => b.kilograms - a.kilograms)
+            .slice(0, 10),
+          topCountries: Object.entries(countryGrouped || {})
+            .map(([name, stats]: [string, any]) => ({ name, ...stats }))
+            .sort((a, b) => b.kilograms - a.kilograms)
+            .slice(0, 10)
+        };
+      }
+
+      return analytics;
     } catch (error) {
       console.error('Error fetching analytics:', error);
       return {
@@ -486,18 +576,46 @@ export const fullCargoApi = {
     }
   },
 
-  // Get weekly shipments summary
-  async getWeeklyShipments(season = '2024_2025') {
+  // Get weekly shipments summary by season or all seasons
+  async getWeeklyShipments(season = 'all') {
     try {
-      const tableName = `shipments_${season}`;
+      let data;
 
-      const { data, error } = await supabase
-        .from(tableName)
-        .select('etd_week, boxes, kilograms')
-        .not('etd_week', 'is', null)
-        .not('boxes', 'is', null);
+      if (season === 'all') {
+        // For all seasons, get data from all season tables
+        const allSeasons = ['2024_2025', '2023_2024', '2022_2023', '2021_2022'];
+        const seasonData = await Promise.all(
+          allSeasons.map((seasonName) => {
+            const tableName = `shipments_${seasonName}`;
+            return supabase
+              .from(tableName)
+              .select('etd_week, boxes, kilograms')
+              .not('etd_week', 'is', null)
+              .not('boxes', 'is', null);
+          })
+        );
 
-      if (error) throw error;
+        // Combine all data
+        data = seasonData.reduce((acc, { data: seasonShipments }) => {
+          if (seasonShipments) {
+            acc.push(...seasonShipments);
+          }
+          return acc;
+        }, [] as any[]);
+      } else {
+        // For specific season
+        const tableName = `shipments_${season}`;
+        const { data: seasonData } = await supabase
+          .from(tableName)
+          .select('etd_week, boxes, kilograms')
+          .not('etd_week', 'is', null)
+          .not('boxes', 'is', null);
+        data = seasonData;
+      }
+
+      if (!data) {
+        return [];
+      }
 
       // Group by week
       const weeklyStats = data?.reduce((acc: any, item) => {
@@ -575,6 +693,82 @@ export const fullCargoApi = {
         countries: [],
         exporters: [],
         importers: []
+      };
+    }
+  },
+
+  // ========================================
+  // DASHBOARD KPI APIs
+  // ========================================
+
+  // Get dashboard KPI counts
+  async getDashboardKPIs(season = 'all') {
+    try {
+      let shipmentsCount = 0;
+
+      if (season === 'all') {
+        // Count total shipments across all seasons
+        const seasonCounts = await Promise.all([
+          supabase
+            .from('shipments_2024_2025')
+            .select('*', { count: 'exact', head: true }),
+          supabase
+            .from('shipments_2023_2024')
+            .select('*', { count: 'exact', head: true }),
+          supabase
+            .from('shipments_2022_2023')
+            .select('*', { count: 'exact', head: true }),
+          supabase
+            .from('shipments_2021_2022')
+            .select('*', { count: 'exact', head: true })
+        ]);
+
+        shipmentsCount = seasonCounts.reduce(
+          (total, { count }) => total + (count || 0),
+          0
+        );
+      } else {
+        // Count total shipments for specific season
+        const { count } = await supabase
+          .from(`shipments_${season}`)
+          .select('*', { count: 'exact', head: true });
+        shipmentsCount = count || 0;
+      }
+
+      const [
+        { count: exportersCount },
+        { count: importersCount },
+        { count: speciesCount },
+        { count: varietiesCount }
+      ] = await Promise.all([
+        // Count total exporters
+        supabase.from('exporters').select('*', { count: 'exact', head: true }),
+
+        // Count total importers
+        supabase.from('importers').select('*', { count: 'exact', head: true }),
+
+        // Count total species
+        supabase.from('species').select('*', { count: 'exact', head: true }),
+
+        // Count total varieties
+        supabase.from('varieties').select('*', { count: 'exact', head: true })
+      ]);
+
+      return {
+        exporters: exportersCount || 0,
+        importers: importersCount || 0,
+        species: speciesCount || 0,
+        varieties: varietiesCount || 0,
+        shipments: shipmentsCount || 0
+      };
+    } catch (error) {
+      console.error('Error fetching dashboard KPIs:', error);
+      return {
+        exporters: 0,
+        importers: 0,
+        species: 0,
+        varieties: 0,
+        shipments: 0
       };
     }
   }

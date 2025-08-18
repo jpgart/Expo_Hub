@@ -2,10 +2,10 @@ import { createClient } from '@supabase/supabase-js';
 import { useAuth } from '@clerk/nextjs';
 
 /**
- * Create Supabase client with Clerk integration
- * This client automatically includes the user's JWT token for RLS
+ * Hook to get a Supabase client with Clerk authentication
+ * Use this in React components that need authenticated Supabase access
  */
-export function createClerkSupabaseClient() {
+export function useSupabaseClient() {
   const { getToken } = useAuth();
 
   return createClient(
@@ -34,12 +34,4 @@ export function createClerkSupabaseClient() {
       }
     }
   );
-}
-
-/**
- * Hook to get a Supabase client with Clerk authentication
- * Use this in React components that need authenticated Supabase access
- */
-export function useSupabaseClient() {
-  return createClerkSupabaseClient();
 }

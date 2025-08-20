@@ -34,7 +34,7 @@ interface DashboardData {
     totalExporters: number;
     totalKilograms: number;
     totalBoxes: number;
-    averagePerExporter: number;
+    totalImporters: number; // Changed from averagePerExporter
   };
   topExporters: Array<{
     name: string;
@@ -53,7 +53,7 @@ interface DashboardData {
 }
 
 export default function OverViewPage() {
-  const [data, setData] = React.useState<DashboardData | null>(null);
+  const [data, setData] = React.useState<DashboardData | undefined>(undefined);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
@@ -124,7 +124,7 @@ export default function OverViewPage() {
                       {formatNumber(data.kpis.totalExporters)}
                     </CardTitle>
                     <CardAction>
-                      <Badge variant='outline'>
+                      <Badge variant='outline' className='whitespace-nowrap'>
                         <IconBuilding className='mr-1 h-3 w-3' />
                         Active
                       </Badge>
@@ -147,7 +147,7 @@ export default function OverViewPage() {
                       {formatNumber(data.kpis.totalKilograms)}
                     </CardTitle>
                     <CardAction>
-                      <Badge variant='outline'>
+                      <Badge variant='outline' className='whitespace-nowrap'>
                         <IconPackage className='mr-1 h-3 w-3' />
                         Kg
                       </Badge>
@@ -169,7 +169,7 @@ export default function OverViewPage() {
                       {formatNumber(data.kpis.totalBoxes)}
                     </CardTitle>
                     <CardAction>
-                      <Badge variant='outline'>
+                      <Badge variant='outline' className='whitespace-nowrap'>
                         <IconTruck className='mr-1 h-3 w-3' />
                         Units
                       </Badge>
@@ -186,23 +186,23 @@ export default function OverViewPage() {
                 </Card>
                 <Card className='@container/card'>
                   <CardHeader>
-                    <CardDescription>Average per Exporter</CardDescription>
+                    <CardDescription>Total Importers</CardDescription>
                     <CardTitle className='text-2xl font-semibold tabular-nums @[250px]/card:text-3xl'>
-                      {formatNumber(data.kpis.averagePerExporter)}
+                      {formatNumber(data.kpis.totalImporters)}
                     </CardTitle>
                     <CardAction>
-                      <Badge variant='outline'>
+                      <Badge variant='outline' className='whitespace-nowrap'>
                         <IconUsers className='mr-1 h-3 w-3' />
-                        Kg/Exp
+                        Importers
                       </Badge>
                     </CardAction>
                   </CardHeader>
                   <CardFooter className='flex-col items-start gap-1.5 text-sm'>
                     <div className='line-clamp-1 flex gap-2 font-medium'>
-                      Performance metric <IconUsers className='size-4' />
+                      Active importers <IconUsers className='size-4' />
                     </div>
                     <div className='text-muted-foreground'>
-                      Average volume per company
+                      Total active import companies
                     </div>
                   </CardFooter>
                 </Card>

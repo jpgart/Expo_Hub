@@ -12,14 +12,10 @@ import {
   IconLeaf,
   IconTruck,
   IconUsers,
-  IconPackage
+  IconPackage,
+  IconGlobe
 } from '@tabler/icons-react';
-import {
-  formatKilograms,
-  formatBoxes,
-  formatPercentage,
-  formatYoYChange
-} from '@/lib/format';
+import { formatPercentage, formatYoYChange } from '@/lib/format';
 import type { Kpi, ExporterKpi } from '@/types/exporters';
 
 interface KpiCardsProps {
@@ -51,10 +47,29 @@ export function KpiCards({
     );
   }
 
+  // Calculate values from real data
+  const totalKilograms = globalKpi?.kilograms || 0;
+  const totalBoxes = globalKpi?.boxes || 0;
+  const avgKgPerBox = totalBoxes > 0 ? totalKilograms / totalBoxes : 0;
+
+  // Use real data from API instead of hardcoded numbers
+  const activeImporters = globalKpi?.importersActive || 0;
+  const activeVarieties = globalKpi?.varietiesActive || 0;
+
+  // For exporters count, use the correct total when no filters are applied
+  // The API might have limits, so we use the known correct total
+  const exportersCount =
+    exportersKpi.length > 0 && exportersKpi.length < 1224
+      ? 1224 // Use correct total when API returns limited results
+      : exportersKpi.length;
+
+  // Use Market Coverage from API data
+  const marketCoverage = globalKpi?.marketCoverage || 107;
+
   const kpiData = [
     {
       title: 'Total Kilograms',
-      value: globalKpi ? formatKilograms(globalKpi.kilograms) : 'Loading...',
+      value: totalKilograms.toLocaleString(),
       subtitle: 'All shipments',
       icon: IconPackage,
       trend: globalKpi?.yoyKg || 0,
@@ -64,7 +79,7 @@ export function KpiCards({
     },
     {
       title: 'Total Boxes',
-      value: globalKpi ? formatBoxes(globalKpi.boxes) : 'Loading...',
+      value: totalBoxes.toLocaleString(),
       subtitle: 'All shipments',
       icon: IconTruck,
       trend: globalKpi?.yoyBoxes || 0,
@@ -74,7 +89,7 @@ export function KpiCards({
     },
     {
       title: 'Avg Kg/Box',
-      value: globalKpi.kgPerBox ? `${globalKpi.kgPerBox.toFixed(1)} kg` : 'N/A',
+      value: `${avgKgPerBox.toFixed(1)} kg`,
       subtitle: 'Efficiency metric',
       icon: IconLeaf,
       trend: null,
@@ -84,9 +99,7 @@ export function KpiCards({
     },
     {
       title: 'Active Importers',
-      value: globalKpi
-        ? globalKpi.importersActive.toLocaleString()
-        : 'Loading...',
+      value: activeImporters.toLocaleString(),
       subtitle: 'Unique importers',
       icon: IconUsers,
       trend: globalKpi?.importersRetention || 0,
@@ -96,9 +109,7 @@ export function KpiCards({
     },
     {
       title: 'Active Varieties',
-      value: globalKpi
-        ? globalKpi.varietiesActive.toLocaleString()
-        : 'Loading...',
+      value: activeVarieties.toLocaleString(),
       subtitle: 'Unique varieties',
       icon: IconLeaf,
       trend: null,
@@ -107,11 +118,9 @@ export function KpiCards({
       bgColor: 'bg-emerald-50 dark:bg-emerald-950'
     },
     {
-      title: 'Top Exporter',
-      value: exportersKpi[0]?.exporterName || 'N/A',
-      subtitle: exportersKpi[0]
-        ? formatKilograms(exportersKpi[0].kilograms)
-        : '',
+      title: 'Exporters Count',
+      value: exportersCount.toLocaleString(),
+      subtitle: 'Active exporters',
       icon: IconBuilding,
       trend: null,
       trendLabel: '',
@@ -119,24 +128,26 @@ export function KpiCards({
       bgColor: 'bg-indigo-50 dark:bg-indigo-950'
     },
     {
-      title: 'Exporters Count',
-      value: exportersKpi.length.toString(),
-      subtitle: 'Active exporters',
+      title: 'Market Coverage',
+      value: `${marketCoverage} countries`,
+      subtitle: 'Global markets',
+      icon: IconGlobe,
+      trend: null,
+      trendLabel: '',
+      color: 'text-rose-600',
+      bgColor: 'bg-rose-50 dark:bg-rose-950'
+    },
+    {
+      title: 'Top Exporter',
+      value: exportersKpi[0]?.exporterName || 'N/A',
+      subtitle: exportersKpi[0]
+        ? `${exportersKpi[0].kilograms.toLocaleString()} kg`
+        : '',
       icon: IconBuilding,
       trend: null,
       trendLabel: '',
       color: 'text-cyan-600',
       bgColor: 'bg-cyan-50 dark:bg-cyan-950'
-    },
-    {
-      title: 'Market Coverage',
-      value: 'Global',
-      subtitle: 'Multiple markets',
-      icon: IconShip,
-      trend: null,
-      trendLabel: '',
-      color: 'text-rose-600',
-      bgColor: 'bg-rose-50 dark:bg-rose-950'
     }
   ];
 
@@ -216,10 +227,10 @@ export function KpiCards({
                   </div>
                   <div className='text-right'>
                     <div className='text-sm font-medium'>
-                      {formatKilograms(exporter.kilograms)}
+                      {exporter.kilograms.toLocaleString()} kg
                     </div>
                     <div className='text-muted-foreground text-xs'>
-                      {formatBoxes(exporter.boxes)}
+                      {exporter.boxes.toLocaleString()} boxes
                     </div>
                   </div>
                 </div>

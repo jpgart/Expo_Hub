@@ -260,7 +260,7 @@ DECLARE
     total_kg NUMERIC;
 BEGIN
     -- Get total kilograms for percentage calculation
-    SELECT COALESCE(SUM(kilograms), 0) INTO total_kg
+    SELECT COALESCE(SUM(s.kilograms), 0) INTO total_kg
     FROM unified_shipments s
     WHERE (p_season_ids IS NULL OR s.season_id = ANY(p_season_ids))
         AND (p_exporter_ids IS NULL OR s.exporter_id = ANY(p_exporter_ids))
@@ -330,7 +330,7 @@ BEGIN
             WHEN p_top_type = 'arrival_ports' THEN ap.name
             ELSE ''
         END
-    ORDER BY kilograms DESC
+    ORDER BY SUM(s.kilograms) DESC
     LIMIT 10;
 END;
 $$;

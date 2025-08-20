@@ -36,12 +36,32 @@ export default function ExportersPage() {
   } | null>(null);
   const [chartData, setChartData] = React.useState<ChartData | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [filterOptions, setFilterOptions] = React.useState<{
+    exporters: Array<{ id: number; name: string }>;
+  }>({ exporters: [] });
   // Initialize filters from URL params
   React.useEffect(() => {
     const params = Object.fromEntries(searchParams.entries());
     const urlFilters = urlParamsToFilters(params);
     setFilters(urlFilters);
   }, [searchParams]);
+
+  // Load filter options
+  React.useEffect(() => {
+    const loadFilterOptions = async () => {
+      try {
+        const response = await fetch('/api/exporters/options');
+        if (response.ok) {
+          const data = await response.json();
+          setFilterOptions({ exporters: data.exporters || [] });
+        }
+      } catch (error) {
+        console.error('Error loading filter options:', error);
+      }
+    };
+
+    loadFilterOptions();
+  }, []);
 
   // Load data when filters change
   React.useEffect(() => {
@@ -136,7 +156,19 @@ export default function ExportersPage() {
 
       {/* KPI Cards */}
       <KpiCards
-        globalKpi={kpiData?.global || null}
+        globalKpi={
+          kpiData?.global || {
+            kilograms: 0,
+            boxes: 0,
+            kgPerBox: 0,
+            yoyKg: 0,
+            yoyBoxes: 0,
+            importersActive: 0,
+            importersRetention: 0,
+            varietiesActive: 0,
+            marketCoverage: 0
+          }
+        }
         exportersKpi={kpiData?.exporters || []}
         loading={loading}
       />
@@ -161,6 +193,7 @@ export default function ExportersPage() {
             granularity={filters.granularity || 'month'}
             metric={filters.metric || 'kilograms'}
             loading={loading}
+            exporterOptions={filterOptions?.exporters || []}
           />
         </div>
       </div>

@@ -23,6 +23,7 @@ export type Kpi = {
   importersActive: number;
   importersRetention: number | null;
   varietiesActive: number;
+  marketCoverage?: number;
 };
 
 export type ExporterKpi = Kpi & {

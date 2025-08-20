@@ -1,0 +1,178 @@
+# Guía SQL para Supabase (PostgreSQL)
+
+**Estándares, patrones y estrategias para escribir código robusto, performante y seguro**
+
+> Documento de referencia para desarrolladores y LLMs al trabajar con Supabase (PostgreSQL). Incluye convenciones, plantillas, listas de verificación y patrones probados.
+
+---
+
+## 1) Convenciones de estilo y nombrado
+
+* **Esquema**: usa `public` por defecto. Si defines otros, documenta su propósito.
+* **Nombres**: `snake_case`, inglés para objetos (`unified_shipments`, `arrival_ports`).
+* **Claves**: `id` como `BIGINT` o `UUID`. Prefiere `UUID` si hay ingestión distribuida.
+* **FKs**: `<tabla>_id` (p. ej., `exporter_id`). Indexa siempre cada FK.
+* **Campos de auditoría**: `created_at TIMESTAMPTZ DEFAULT now()`, `updated_at TIMESTAMPTZ` con trigger.
+* **Enums**: evita `ENUM` nativos si necesitas agilidad; usa tablas de **lookup** con PK + `name`.
+* **Nulos**: define explícitamente `NOT NULL` cuando aplique. Usa `CHECK` para reglas simples.
+
+---
+
+## 2) Seguridad y RLS (Row Level Security)
+
+* **Habilita RLS** en tablas con datos sensibles:
+
+  ```sql
+  ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+  ```
+* **Políticas mínimas** (ejemplos):
+
+  ```sql
+  -- Lectura por dueño
+  CREATE POLICY orders_select_own ON public.orders
+  FOR SELECT USING (auth.uid() = user_id);
+
+  -- Inserción sólo para usuarios autenticados
+  CREATE POLICY orders_insert_auth ON public.orders
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+  ```
+* **Vistas/MV**: RLS no aplica a vistas; considera **tablas caché** si necesitas RLS en agregados.
+* **Funciones RPC** con `SECURITY DEFINER`: fija `search_path` y controla permisos.
+
+---
+
+## 3) Funciones (RPC) seguras y eficientes
+
+**Checklist**:
+
+* `LANGUAGE plpgsql`
+* `SECURITY DEFINER` + `SET search_path = public`
+* Marcar `STABLE`/`IMMUTABLE` si procede
+* Validar parámetros (listas blancas, tipos)
+* Evitar SQL dinámico; si es necesario, usa `format()` + `quote_ident()`/`quote_literal()`
+* No confiar en `search_path` implícito
+
+**Plantilla base**:
+
+```sql
+CREATE OR REPLACE FUNCTION public.fn_template(
+  p_example INTEGER,
+  p_ids INTEGER[] DEFAULT NULL
+)
+RETURNS TABLE(out_id INTEGER, out_name TEXT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+STABLE
+AS $$
+BEGIN
+  IF p_example IS NULL THEN
+    RAISE EXCEPTION 'p_example is required' USING ERRCODE = '22023';
+  END IF;
+
+  RETURN QUERY
+  SELECT t.id, t.name
+  FROM public.some_table t
+  WHERE (p_ids IS NULL OR t.id = ANY(p_ids))
+  ORDER BY t.name;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.fn_template(INTEGER, INTEGER[]) TO anon, authenticated;
+```
+
+**Patrón de filtros opcionales (arrays + NULL)**:
+
+```sql
+WHERE (p_season_ids IS NULL OR s.season_id = ANY(p_season_ids))
+  AND (p_week_from IS NULL OR s.etd_week >= p_week_from)
+  AND (p_week_to   IS NULL OR s.etd_week <= p_week_to)
+```
+
+**Errores claros**:
+
+```sql
+RAISE EXCEPTION 'Invalid p_top_type: %', p_top_type USING ERRCODE = '22023';
+```
+
+---
+
+## 4) Rendimiento: índices, estadísticas y planes
+
+* **Indexa**: toda FK y toda columna de filtrado frecuente. Considera índices compuestos en orden selectivo (ej.: `(market_id, season_id)`).
+* **Tipos correctos**: evita comparar `TEXT` cuando son fechas/numéricos. Usa `DATE`, `INT`, `NUMERIC`.
+* **`EXPLAIN (ANALYZE, BUFFERS)`**: inspecciona planes reales antes de optimizar.
+* **`pg_stat_statements`**: habilita y revisa consultas “hot”.
+* **Reindex** poco frecuente; mejor ajustar estadísticas (`ANALYZE`).
+
+**Patrones de índice**:
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_orders_user ON public.orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_shipments_market_season ON public.unified_shipments(market_id, season_id);
+```
+
+---
+
+## 5) Materialized Views (MV) para analítica
+
+* Úsalas cuando tu vista hace JOINs/aggregados costosos.
+* **Se pueden indexar** y refrescar con `pg_cron`.
+* `REFRESH CONCURRENTLY` requiere índice **único** en la MV.
+
+**Plantilla MV**:
+
+```sql
+DROP MATERIALIZED VIEW IF EXISTS public.my_mv;
+CREATE MATERIALIZED VIEW public.my_mv AS
+SELECT ...
+FROM public.my_base_view_or_tables
+WITH NO DATA;
+
+-- Índices
+CREATE INDEX IF NOT EXISTS idx_my_mv_col1 ON public.my_mv(col1);
+
+-- Primer poblado
+REFRESH MATERIALIZED VIEW public.my_mv;
+
+-- Permisos
+GRANT SELECT ON public.my_mv TO anon, authenticated;
+```
+
+**Habilitar CONCURRENTLY (sin PK natural)**:
+
+```sql
+-- agrega row_id estable
+ALTER MATERIALIZED VIEW public.my_mv DROP COLUMN IF EXISTS row_id;
+REFRESH MATERIALIZED VIEW public.my_mv; -- por si existe
+
+-- recrea con row_id (o usa CREATE OR REPLACE si cambias definición completa)
+-- ejemplo: md5(...) de columnas clave
+```
+
+---
+
+## 6) Tipos y comparaciones seguras
+
+* Semana/periodos: define `INT` (`YYYYWW`) o `DATE`/`DATERANGE`. Evita `TEXT`.
+* Monedas: `NUMERIC(18,2)` o precisión acorde. Evita `FLOAT` para montos.
+* Fechas: usa `TIMESTAMPTZ` para datos con huso.
+
+**Conversión explícita**:
+
+```sql
+AND (p_week_from IS NULL OR s.etd_week >= p_week_from::INT)
+```
+
+---
+
+## 7) JSON/JSONB y datos semiestructurados
+
+* Prefiere `JSONB` para indexar (`GIN`).
+* Normaliza cuando un campo se consulta con frecuencia.
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_tbl_data_gin ON public.tbl USING GIN (payload jsonb_path_ops);
+-- Consulta: payload ->
+```
+ue 

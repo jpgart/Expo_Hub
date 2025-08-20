@@ -152,19 +152,34 @@ export function Filters({ onFiltersChange, loading = false }: FiltersProps) {
         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
           {/* All Filters in 4 columns grid */}
           <div className='grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4'>
-            {/* Seasons - MultiSearchSelect (few options but multiple selection) */}
+            {/* Seasons - Simple Select (few options) */}
             <div className='space-y-1'>
               <Label htmlFor='seasons' className='text-sm font-medium'>
                 Seasons
               </Label>
-              <MultiSearchSelect
-                options={filterOptions.seasons}
-                value={form.watch('seasonIds') || []}
-                onValueChange={(value) => form.setValue('seasonIds', value)}
-                placeholder='All seasons'
-                searchPlaceholder='Search seasons...'
+              <Select
+                value={form.watch('seasonIds')?.join(',') || ''}
+                onValueChange={(value) => {
+                  const ids =
+                    value && value !== 'all'
+                      ? value.split(',').map(Number)
+                      : [];
+                  form.setValue('seasonIds', ids);
+                }}
                 disabled={optionsLoading}
-              />
+              >
+                <SelectTrigger className='h-9'>
+                  <SelectValue placeholder='All seasons' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='all'>All seasons</SelectItem>
+                  {filterOptions.seasons.map((season) => (
+                    <SelectItem key={season.id} value={season.id.toString()}>
+                      {season.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Exporters - MultiSearchSelect (many options) */}
